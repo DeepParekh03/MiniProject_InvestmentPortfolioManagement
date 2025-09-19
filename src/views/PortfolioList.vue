@@ -98,12 +98,20 @@
 <script setup>
 import { ref, computed } from "vue";
 import { Eye, Edit, Plus, Search, TrendingUp, TrendingDown } from "lucide-vue-next";
+import router from "@/router";
 
 const props = defineProps({
   onEditPortfolio: Function,
-  onViewPortfolio: Function,
-  onCreatePortfolio: Function,
+  
 });
+
+const onViewPortfolio=()=>{
+  router.push('/portfolioDetail')
+}
+
+const onCreatePortfolio=()=>{
+  router.push('/portfolioForm')
+}
 
 const searchTerm = ref("");
 const activeTab = ref("ACTIVE");
@@ -117,15 +125,15 @@ const mockPortfolios = [
   { id: "5", name: "Balanced Portfolio", client: "David Brown", startDate: "2023-09-01", status: "ACTIVE", returns: -2.1, totalValue: 95000 },
 ];
 
-const filteredPortfolios = computed(() =>
-  mockPortfolios.filter((p) => {
+const filteredPortfolios = computed(() => {
+  return mockPortfolios.filter((p) => {
     const matchesSearch =
       p.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
       p.client.toLowerCase().includes(searchTerm.value.toLowerCase());
-    const matchesTab = activeTab.value === "all" || p.status === activeTab.value;
+    const matchesTab = p.status === activeTab.value;
     return matchesSearch && matchesTab;
-  })
-);
+  });
+});
 
 const getStatusVariant = (status) => {
   switch (status) {
