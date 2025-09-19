@@ -1,26 +1,31 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-</template>
+<script setup>
+// import { useRoute, useRouter } from "vue-router";
+// import { computed } from "vue";
+// import Layout from "@/components/Layout.vue";
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+// const route = useRoute();
+// const router = useRouter();
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+// // derive activeSection from current route
+// const activeSection = computed(() => {
+//   if (route.name === "users") return "users";
+//   if (route.name === "portfolios") return "portfolios";
+//   return "users";
+// });
+
+// // handle section change (when nav button is clicked)
+// function handleSectionChange(section) {
+//   router.push({ name: section });
+// }
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<template>
+<div class="bg-blue-500 p-4">
+  <span class="text-red-600">Red text</span>
+  <span class="text-white"> White text</span>
+</div>
+
+  <!-- <Layout :active-section="activeSection" :on-section-change="handleSectionChange">
+    <router-view />
+  </Layout> -->
+</template>
