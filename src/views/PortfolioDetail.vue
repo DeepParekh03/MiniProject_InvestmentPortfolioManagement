@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center">
       <h1 class="text-3xl text-gray-900">{{ portfolio.name }}</h1>
       <div class="flex space-x-3">
-        <button @click="onEdit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
+        <button @click="onEdit(portfolioId)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
           ✏️ Edit Portfolio
         </button>
         <button v-if="portfolio.status === 'ACTIVE'" @click="onClose"
@@ -160,7 +160,7 @@ const formatPercentage = (pct) => {
     ${positive ? "▲" : "▼"} ${value > 0 ? "+" : ""}${value.toFixed(1)}%</span>`;
 };
 
-const onEdit = () => alert("Edit clicked!");
+const onEdit = (id) => router.push({ path: "/portfolioForm", query: { id } });
 
 const onClose = async () => {
   if (!portfolio.value) return;
