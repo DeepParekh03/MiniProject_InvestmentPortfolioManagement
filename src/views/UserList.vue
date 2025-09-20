@@ -70,6 +70,9 @@
                 </div>
               </td>
             </tr>
+            <tr v-if="filteredClients.length === 0">
+              <td colspan="7" class="text-center py-4 text-gray-500">No clients currently.</td>
+            </tr>
           </tbody>
         </table>
       </div>

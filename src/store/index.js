@@ -21,19 +21,27 @@ export default createStore({
   getters: {
     getPortfolios: (state) => state.portfolios,
     getClients: (state) => state.clients,
-    getClientById: (state) => (id) => state.clients.find(c => c.id === id),
-    getPortfolioById: (state) => (id) => state.portfolios.find(p => p.id === id),
-    filteredClients: (state) => (searchTerm) => state.clients.filter(c =>
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchTerm.toLowerCase())
-    ),
-    filteredPortfolios: (state) => (searchTerm, statusTab) => state.portfolios.filter(p =>
-      (p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.client.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      p.status === statusTab
-    ),
+    getClientById: (state) => (id) => state.clients.find((c) => c.id === id),
+    getPortfolioById: (state) => (id) =>
+      state.portfolios.find((p) => p.id === id),
+    filteredClients: (state) => (searchTerm) =>
+      state.clients.filter(
+        (c) =>
+          c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          c.email.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    filteredPortfolios: (state) => (searchTerm, statusTab) =>
+      state.portfolios.filter(
+        (p) =>
+          (p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.client.toLowerCase().includes(searchTerm.toLowerCase())) &&
+          p.status === statusTab
+      ),
     totalPortfolioValue: (state) => (portfolioId) => {
-      const portfolio = state.portfolios.find(p => p.id === portfolioId);
-      return portfolio?.holdings?.reduce((sum, h) => sum + h.currentValue, 0) ?? 0;
+      const portfolio = state.portfolios.find((p) => p.id === portfolioId);
+      return (
+        portfolio?.holdings?.reduce((sum, h) => sum + h.currentValue, 0) ?? 0
+      );
     },
   },
 
@@ -44,26 +52,33 @@ export default createStore({
       saveToStorage(LOCAL_STORAGE_CLIENTS, state.clients);
     },
     updateClient(state, updatedClient) {
-      const index = state.clients.findIndex(c => c.id === updatedClient.id);
+      const index = state.clients.findIndex((c) => c.id === updatedClient.id);
       if (index !== -1) state.clients[index] = updatedClient;
       saveToStorage(LOCAL_STORAGE_CLIENTS, state.clients);
     },
     deleteClient(state, clientId) {
-      state.clients = state.clients.filter(c => c.id !== clientId);
+      state.clients = state.clients.filter((c) => c.id !== clientId);
+      state.portfolios = state.portfolios.filter(
+        (p) => p.clientId !== clientId
+      );
       saveToStorage(LOCAL_STORAGE_CLIENTS, state.clients);
+      saveToStorage(LOCAL_STORAGE_PORTFOLIOS, state.portfolios);
     },
+
     addPortfolio(state, portfolio) {
       portfolio.id = Date.now().toString();
       state.portfolios.push(portfolio);
       saveToStorage(LOCAL_STORAGE_PORTFOLIOS, state.portfolios);
     },
     updatePortfolio(state, updatedPortfolio) {
-      const index = state.portfolios.findIndex(p => p.id === updatedPortfolio.id);
+      const index = state.portfolios.findIndex(
+        (p) => p.id === updatedPortfolio.id
+      );
       if (index !== -1) state.portfolios[index] = updatedPortfolio;
       saveToStorage(LOCAL_STORAGE_PORTFOLIOS, state.portfolios);
     },
     deletePortfolio(state, portfolioId) {
-      state.portfolios = state.portfolios.filter(p => p.id !== portfolioId);
+      state.portfolios = state.portfolios.filter((p) => p.id !== portfolioId);
       saveToStorage(LOCAL_STORAGE_PORTFOLIOS, state.portfolios);
     },
   },
@@ -83,5 +98,5 @@ export default createStore({
     removePortfolio({ commit }, portfolioId) {
       commit("deletePortfolio", portfolioId);
     },
-  }
+  },
 });

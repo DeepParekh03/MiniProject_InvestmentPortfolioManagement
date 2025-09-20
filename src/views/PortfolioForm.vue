@@ -200,6 +200,7 @@ const handleSubmit = async () => {
   const portfolioData = {
     id: formData.id,
     name: formData.name,
+    clientId: formData.client.id,
     client: formData.client.name,
     startDate: formData.startDate,
     status: formData.status,
