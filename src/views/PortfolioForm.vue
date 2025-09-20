@@ -7,7 +7,6 @@
           <X class="w-5 h-5" />
         </button>
       </div>
-
       <form class="p-6 space-y-8" @submit.prevent="handleSubmit">
         <div class="space-y-6">
           <h3 class="text-lg text-gray-900">Basic Information</h3>
@@ -40,11 +39,12 @@
 
             <div>
               <label class="block text-gray-700">Status *</label>
-              <select v-model="formData.status" class="w-full border rounded px-3 py-2">
+              <select v-model="formData.status" class="w-full border rounded px-3 py-2" data-testid="status-select">
                 <option value="UPCOMING">Upcoming</option>
                 <option value="ACTIVE">Active</option>
                 <option value="CLOSED">Closed</option>
               </select>
+
             </div>
 
             <div>
@@ -58,11 +58,12 @@
         <div class="space-y-6">
           <div class="flex justify-between items-center">
             <h3 class="text-lg text-gray-900">Holdings</h3>
-            <button type="button"
+            <button type="button" data-testid="add-holding-btn"
               class="flex items-center px-3 py-1 border rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               @click="addHolding" :disabled="formData.status === 'UPCOMING'">
               <Plus class="w-4 h-4 mr-2" /> Add Holding
             </button>
+
           </div>
 
           <p v-if="errors.holdings" class="text-sm text-red-600">{{ errors.holdings }}</p>
@@ -80,9 +81,10 @@
             </thead>
             <tbody>
               <tr v-for="(holding, index) in holdings" :key="holding.id"
-                  :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'">
+                :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'">
                 <td class="px-3 py-2">
-                  <input v-model="holding.assetName" type="text" placeholder="e.g., AAPL" class="w-full border rounded px-2 py-1" />
+                  <input v-model="holding.assetName" type="text" placeholder="e.g., AAPL"
+                    class="w-full border rounded px-2 py-1" />
                 </td>
                 <td class="px-3 py-2">
                   <select v-model="holding.type" class="w-full border rounded px-2 py-1">
@@ -93,8 +95,8 @@
                   </select>
                 </td>
                 <td class="px-3 py-2">
-                  <input v-model.number="holding.allocation" type="number" placeholder="eg. 10" min="0" max="100" step="0.1"
-                    class="w-full border rounded px-2 py-1" />
+                  <input v-model.number="holding.allocation" type="number" placeholder="eg. 10" min="0" max="100"
+                    step="0.1" class="w-full border rounded px-2 py-1" />
                 </td>
                 <td class="px-3 py-2">
                   <input v-model.number="holding.initialValue" type="number" placeholder="e.g., 10000" min="0"
@@ -215,7 +217,7 @@ const handleSubmit = async () => {
     })),
     totalValue,
     returns: ((totalValue - holdings.value.reduce((sum, h) => sum + h.initialValue, 0)) /
-              holdings.value.reduce((sum, h) => sum + h.initialValue, 0)) * 100,
+      holdings.value.reduce((sum, h) => sum + h.initialValue, 0)) * 100,
   };
 
   await store.dispatch("savePortfolio", portfolioData);

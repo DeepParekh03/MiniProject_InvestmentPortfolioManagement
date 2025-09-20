@@ -20,7 +20,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Client Info -->
       <div class="p-4 border rounded shadow">
         <h2 class="text-lg font-semibold text-gray-900">Client Information</h2>
         <p class="mt-2 text-gray-900 py-3">{{ portfolio.client }}</p>

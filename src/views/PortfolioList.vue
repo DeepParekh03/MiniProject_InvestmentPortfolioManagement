@@ -110,7 +110,8 @@
               </span>
             </div>
             <p class="text-gray-600 text-sm"><strong>Client:</strong> {{ portfolio.client ?? '-' }}</p>
-            <p class="text-gray-600 text-sm"><strong>Start Date:</strong> 
+            <p class="text-gray-600 text-sm">
+<strong>Start Date:</strong> 
               {{ portfolio.startDate ? new Date(portfolio.startDate).toLocaleDateString() : '-' }}
             </p>
             <p class="text-gray-600 text-sm">

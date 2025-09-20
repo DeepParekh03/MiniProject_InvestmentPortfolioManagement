@@ -18,8 +18,7 @@ function handleSectionChange(section) {
 </script>
 
 <template>
-
-  <Layout :active-section="activeSection" :on-section-change="handleSectionChange">
+<Layout :active-section="activeSection" :on-section-change="handleSectionChange">
     <router-view />
   </Layout>
 </template>
