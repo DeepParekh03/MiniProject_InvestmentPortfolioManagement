@@ -20,7 +20,7 @@ const router = createRouter({
   routes: [],
 });
 
-describe("Clients.vue basic tests", () => {
+describe("ClientsList.vue basic tests", () => {
   let wrapper;
 
   beforeEach(async () => {
@@ -30,7 +30,7 @@ describe("Clients.vue basic tests", () => {
         components: { Plus, Edit, Trash2, Search },
       },
     });
-    await router.isReady(); // ensure router is ready
+    await router.isReady(); 
   });
 
   it("renders header and Add Client button", () => {

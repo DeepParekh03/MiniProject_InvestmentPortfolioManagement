@@ -23,7 +23,7 @@ const mockRouter = {
   push: jest.fn(),
 };
 
-describe("Portfolios.vue basic tests", () => {
+describe("PortfoliosList.vue basic tests", () => {
   let wrapper;
 
   beforeEach(() => {
