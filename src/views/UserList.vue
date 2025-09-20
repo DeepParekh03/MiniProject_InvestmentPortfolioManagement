@@ -87,22 +87,17 @@ const router = useRouter();
 
 const searchTerm = ref("");
 
-// Computed filtered clients from Vuex store
 const filteredClients = computed(() =>
   store.getters.filteredClients(searchTerm.value)
 );
 
-// Navigation to create client form
 const goToCreateClient = () => {
   router.push("/userForm");
 };
 
-// Delete client via Vuex action
 const handleDeleteClient = (clientId) => {
   store.dispatch("removeClient", clientId);
 };
-
-// Edit client: navigate to form with query params
 const editClient = (client) => {
   router.push({
     name: "userForm",
@@ -117,8 +112,6 @@ const editClient = (client) => {
     },
   });
 };
-
-// Utility: get status badge variant
 const getStatusVariant = (status) => {
   switch (status) {
     case "Active":

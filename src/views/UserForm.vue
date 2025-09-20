@@ -153,7 +153,6 @@ const formData = reactive({
 
 const errors = reactive({});
 
-// Populate form if editing via query
 watch(
   () => route.query,
   (q) => {

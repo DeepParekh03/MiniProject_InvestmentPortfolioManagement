@@ -1,7 +1,6 @@
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div class="w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow">
-      <!-- Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b">
         <h2 class="text-2xl text-gray-900">{{ isEditing ? "Edit Portfolio" : "Create New Portfolio" }}</h2>
         <button class="text-gray-500 hover:text-gray-700" @click="onCancel">
@@ -9,9 +8,7 @@
         </button>
       </div>
 
-      <!-- Form -->
       <form class="p-6 space-y-8" @submit.prevent="handleSubmit">
-        <!-- Basic Info -->
         <div class="space-y-6">
           <h3 class="text-lg text-gray-900">Basic Information</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -51,22 +48,13 @@
             </div>
 
             <div>
-              <label class="block text-gray-700">Initial Investment *</label>
-              <input v-model.number="formData.initialInvestment" type="number" placeholder="Enter amount"
-                class="w-full border rounded px-3 py-2" :class="{ 'border-red-500': errors.initialInvestment }" />
-              <p v-if="errors.initialInvestment" class="text-sm text-red-600">{{ errors.initialInvestment }}</p>
+              <label class="block text-gray-700">Notes</label>
+              <textarea v-model="formData.notes" rows="3" placeholder="Additional notes..."
+                class="w-full border rounded px-3 py-2"></textarea>
             </div>
-          </div>
-
-          <div>
-            <label class="block text-gray-700">Notes</label>
-            <textarea v-model="formData.notes" rows="3" placeholder="Additional notes..."
-              class="w-full border rounded px-3 py-2"></textarea>
           </div>
         </div>
 
-        <!-- Holdings -->
-        <!-- Holdings -->
         <div class="space-y-6">
           <div class="flex justify-between items-center">
             <h3 class="text-lg text-gray-900">Holdings</h3>
@@ -85,20 +73,19 @@
                 <th class="px-3 py-2 text-left">Asset Name</th>
                 <th class="px-3 py-2 text-left">Type</th>
                 <th class="px-3 py-2 text-left">Allocation %</th>
-                <th class="px-3 py-2 text-left">Value</th>
+                <th class="px-3 py-2 text-left">Initial Value</th>
+                <th class="px-3 py-2 text-left">Current Value</th>
                 <th class="px-3 py-2" />
               </tr>
             </thead>
             <tbody>
               <tr v-for="(holding, index) in holdings" :key="holding.id"
-                :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'">
+                  :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'">
                 <td class="px-3 py-2">
-                  <input v-model="holding.assetName" type="text" placeholder="e.g., AAPL"
-                    class="w-full border rounded px-2 py-1" :disabled="formData.status === 'UPCOMING'" />
+                  <input v-model="holding.assetName" type="text" placeholder="e.g., AAPL" class="w-full border rounded px-2 py-1" />
                 </td>
                 <td class="px-3 py-2">
-                  <select v-model="holding.type" class="w-full border rounded px-2 py-1"
-                    :disabled="formData.status === 'UPCOMING'">
+                  <select v-model="holding.type" class="w-full border rounded px-2 py-1">
                     <option value="Stock">Stock</option>
                     <option value="Bond">Bond</option>
                     <option value="Mutual Fund">Mutual Fund</option>
@@ -106,16 +93,19 @@
                   </select>
                 </td>
                 <td class="px-3 py-2">
-                  <input v-model.number="holding.allocation" type="number" placeholder="eg .10" min="0" max="100" step="0.1"
-                    class="w-full border rounded px-2 py-1" :disabled="formData.status === 'UPCOMING'" />
+                  <input v-model.number="holding.allocation" type="number" placeholder="eg. 10" min="0" max="100" step="0.1"
+                    class="w-full border rounded px-2 py-1" />
                 </td>
                 <td class="px-3 py-2">
-                  <input v-model.number="holding.value" type="number" placeholder="eg. 10" min="0" class="w-full border rounded px-2 py-1"
-                    :disabled="formData.status === 'UPCOMING'" />
+                  <input v-model.number="holding.initialValue" type="number" placeholder="e.g., 10000" min="0"
+                    class="w-full border rounded px-2 py-1" />
+                </td>
+                <td class="px-3 py-2">
+                  <input v-model.number="holding.currentValue" type="number" placeholder="e.g., 11000" min="0"
+                    class="w-full border rounded px-2 py-1" />
                 </td>
                 <td class="px-3 py-2 text-center">
-                  <button type="button" class="text-red-600 hover:text-red-700" @click="removeHolding(holding.id)"
-                    >
+                  <button type="button" class="text-red-600 hover:text-red-700" @click="removeHolding(holding.id)">
                     <Trash2 class="w-4 h-4" />
                   </button>
                 </td>
@@ -124,8 +114,6 @@
           </table>
         </div>
 
-
-        <!-- Actions -->
         <div class="flex justify-end space-x-4 pt-6">
           <button type="button" class="px-6 py-2 border rounded" @click="onCancel">Cancel</button>
           <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
@@ -147,30 +135,21 @@ const router = useRouter();
 const store = useStore();
 const route = useRoute();
 
-// Clients from store
 const mockClients = computed(() => store.getters.getClients);
 
-// Form state
 const formData = reactive({
   id: null,
   name: "",
   client: null,
   startDate: "",
   status: "UPCOMING",
-  initialInvestment: 0,
   notes: "",
 });
 
-// Holdings
 const holdings = ref([]);
-
-// Errors
 const errors = reactive({});
-
-// Editing state
 const isEditing = computed(() => !!formData.id);
 
-// On mounted, fetch portfolio if editing
 onMounted(() => {
   const portfolioId = route.query.id;
   if (portfolioId) {
@@ -181,51 +160,42 @@ onMounted(() => {
       formData.client = mockClients.value.find(c => c.name === existingPortfolio.client) || null;
       formData.startDate = existingPortfolio.startDate;
       formData.status = existingPortfolio.status || "UPCOMING";
-      formData.initialInvestment = existingPortfolio.initialInvestment || 0;
       formData.notes = existingPortfolio.notes || "";
-      // oxlint-disable-next-line no-constant-binary-expression
+
       holdings.value = existingPortfolio.holdings.map(h => ({
         id: h.id,
         assetName: h.asset,
         type: h.type,
         allocation: h.allocation,
-        value: h.currentValue,
-      }) || null);
+        initialValue: h.initialValue ?? h.currentValue,
+        currentValue: h.currentValue,
+      }));
     }
   }
 });
 
-// Validation
 const validateForm = () => {
   const newErrors = {};
   if (!formData.name.trim()) newErrors.name = "Portfolio name is required";
   if (!formData.client) newErrors.client = "Client selection is required";
   if (!formData.startDate) newErrors.startDate = "Start date is required";
-  if (formData.initialInvestment <= 0) newErrors.initialInvestment = "Initial investment must be greater than 0";
 
-
-
-  if (holdings.value.length === 0 && formData.status != "UPCOMING") {
+  if (holdings.value.length === 0 && formData.status !== "UPCOMING") {
     newErrors.holdings = "At least one holding is required";
   } else if (totalAllocation.value !== 100) {
     newErrors.holdings = `Total allocation must equal 100% (currently ${totalAllocation.value}%)`;
   }
 
-  Object.keys(errors).forEach((key) => delete errors[key]);
+  Object.keys(errors).forEach(key => delete errors[key]);
   Object.assign(errors, newErrors);
 
   return Object.keys(newErrors).length === 0;
 };
 
-// Handle Save / Update
 const handleSubmit = async () => {
   if (!validateForm()) return;
 
-  const totalValue = holdings.value.reduce((sum, h) => sum + Number(h.value || 0), 0);
-  const returnsValue = (totalValue - Number(formData.initialInvestment))/100; // absolute returns
-  console.log(totalValue/formData.initialInvestment)
-  // Or as percentage:
-  // const returnsValue = ((totalValue - formData.initialInvestment) / formData.initialInvestment) * 100;
+  const totalValue = holdings.value.reduce((sum, h) => sum + Number(h.currentValue || 0), 0);
 
   const portfolioData = {
     id: formData.id,
@@ -233,35 +203,34 @@ const handleSubmit = async () => {
     client: formData.client.name,
     startDate: formData.startDate,
     status: formData.status,
-    initialInvestment: formData.initialInvestment,
     notes: formData.notes,
     holdings: holdings.value.map(h => ({
       id: h.id,
       asset: h.assetName,
       type: h.type,
       allocation: h.allocation,
-      currentValue: h.value,
+      initialValue: h.initialValue,
+      currentValue: h.currentValue,
     })),
     totalValue,
-    returns: returnsValue,
+    returns: ((totalValue - holdings.value.reduce((sum, h) => sum + h.initialValue, 0)) /
+              holdings.value.reduce((sum, h) => sum + h.initialValue, 0)) * 100,
   };
 
   await store.dispatch("savePortfolio", portfolioData);
   router.push("/portfolios");
 };
 
-
-// Cancel
 const onCancel = () => router.push("/portfolios");
 
-// Holdings management
 const addHolding = () => {
   holdings.value.push({
     id: Date.now().toString(),
     assetName: "",
     type: "Stock",
     allocation: 0,
-    value: 0,
+    initialValue: 0,
+    currentValue: 0,
   });
 };
 
@@ -269,6 +238,5 @@ const removeHolding = (id) => {
   holdings.value = holdings.value.filter(h => h.id !== id);
 };
 
-// Total allocation (optional)
 const totalAllocation = computed(() => holdings.value.reduce((sum, h) => sum + Number(h.allocation || 0), 0));
 </script>

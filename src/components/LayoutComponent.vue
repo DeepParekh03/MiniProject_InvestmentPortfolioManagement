@@ -11,10 +11,8 @@ const navigationItems = [
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Top Navigation -->
     <header class="bg-white border-b border-gray-200 px-6 py-4">
       <div class="flex items-center justify-between">
-        <!-- Left Side: Logo -->
         <div class="flex items-center space-x-3">
           <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <Briefcase class="w-5 h-5 text-white" />
@@ -22,7 +20,6 @@ const navigationItems = [
           <h1 class="text-xl text-gray-900">Portfolio Manager</h1>
         </div>
 
-        <!-- Right Side: Navigation Tabs -->
         <nav class="flex space-x-1">
           <router-link
             v-for="item in navigationItems"
@@ -38,7 +35,6 @@ const navigationItems = [
       </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container mx-auto px-6 py-8 max-w-7xl">
       <router-view />
     </main>

@@ -111,7 +111,6 @@ const router = useRouter();
 const searchTerm = ref("");
 const activeTab = ref("ACTIVE");
 
-// Computed filtered portfolios
 const filteredPortfolios = computed(() => {
   const allPortfolios = store.getters.getPortfolios ?? [];
   return allPortfolios.filter(p => {
@@ -121,12 +120,10 @@ const filteredPortfolios = computed(() => {
   });
 });
 
-// Navigation functions
 const onViewPortfolio = (id) => router.push({ path: "/portfolioDetail", query: { id } });
 const onEditPortfolio = (id) => router.push({ path: "/portfolioForm", query: { id } });
 const onCreatePortfolio = () => router.push("/portfolioForm");
 
-// Utilities
 const getStatusVariant = (status) => {
   switch (status) {
     case "ACTIVE": return "bg-green-100 text-green-800";

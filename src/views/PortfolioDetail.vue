@@ -1,33 +1,25 @@
 <template>
   <div class="space-y-6 p-6">
-    <!-- Header -->
     <div class="flex justify-between items-center">
       <h1 class="text-3xl text-gray-900">{{ portfolio.name }}</h1>
       <div class="flex space-x-3">
         <button @click="onEdit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
           ✏️ Edit Portfolio
         </button>
-        <button
-          v-if="portfolio.status === 'ACTIVE'"
-          @click="onClose"
-          class="px-4 py-2 border border-red-600 text-red-600 rounded hover:bg-red-50"
-        >
+        <button v-if="portfolio.status === 'ACTIVE'" @click="onClose"
+          class="px-4 py-2 border border-red-600 text-red-600 rounded hover:bg-red-50">
           ❌ Close Portfolio
         </button>
       </div>
     </div>
 
-    <!-- Info + Summary -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Client Info -->
       <div class="p-4 border rounded shadow">
         <h2 class="text-lg font-semibold text-gray-900">Client Information</h2>
         <p class="mt-2 text-gray-900 py-3">{{ portfolio.client }}</p>
         <p class="text-sm text-gray-600 py-2">📧 {{ clientDetails?.email }}</p>
         <p class="text-sm text-gray-600 py-2">📞 {{ clientDetails?.phone }}</p>
       </div>
-
-      <!-- Portfolio Summary -->
       <div class="p-4 border rounded shadow lg:col-span-2">
         <h2 class="text-lg font-semibold text-gray-900">Portfolio Summary</h2>
         <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -53,19 +45,15 @@
       </div>
     </div>
 
-    <!-- Portfolio Distribution (Charts) -->
     <div class="p-4 border rounded shadow">
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Portfolio Distribution</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Pie Chart -->
         <ApexCharts type="pie" :series="pieSeries" :options="pieOptions" height="300" />
 
-        <!-- Bar Chart -->
         <ApexCharts type="bar" :series="barSeries" :options="barOptions" height="300" />
       </div>
     </div>
 
-    <!-- Holdings Table -->
     <div class="p-4 border rounded shadow">
       <h2 class="text-lg font-semibold text-gray-900 mb-2">Holdings</h2>
       <table class="min-w-full border text-sm">
@@ -79,11 +67,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(holding, index) in portfolio.holdings"
-            :key="holding.id"
-            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'"
-          >
+          <tr v-for="(holding, index) in holdingsWithGainLoss" :key="holding.id"
+            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
             <td class="px-4 py-2 border">{{ holding.asset }}</td>
             <td class="px-4 py-2 border">{{ holding.type }}</td>
             <td class="px-4 py-2 border">{{ holding.allocation }}%</td>
@@ -95,7 +80,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -110,24 +94,29 @@ const portfolioId = route.query.id;
 const portfolio = computed(() => store.getters.getPortfolioById(portfolioId));
 const clientDetails = computed(() => store.getters.getClients.find(c => c.name === portfolio.value?.client));
 
+const totalInvestment = computed(() =>
+  portfolio.value?.holdings?.reduce((sum, h) => sum + h.initialValue, 0) ?? 0
+);
+
 const totalValue = computed(() =>
   portfolio.value?.holdings?.reduce((sum, h) => sum + h.currentValue, 0) ?? 0
 );
-const totalInvestment = computed(() =>
-  portfolio.value?.holdings?.reduce((sum, h) => sum + (h.currentValue / (1 + h.gainLoss / 100)), 0) ?? 0
+
+const holdingsWithGainLoss = computed(() =>
+  portfolio.value?.holdings?.map(h => ({
+    ...h,
+    gainLoss: h.initialValue > 0 ? ((h.currentValue - h.initialValue) / h.initialValue) * 100 : 0
+  })) || []
 );
 
-  const groups = {};
-// Group holdings by type
 const groupedHoldings = computed(() => {
+  const groups = {};
   portfolio.value?.holdings?.forEach(h => {
     groups[h.type] = (groups[h.type] || 0) + h.currentValue;
   });
   return groups;
-  
 });
 
-// Pie Chart Data
 const pieSeries = computed(() => Object.values(groupedHoldings.value || {}));
 const pieOptions = computed(() => ({
   labels: Object.keys(groupedHoldings.value || {}),
@@ -135,7 +124,6 @@ const pieOptions = computed(() => ({
   colors: ["#2563eb", "#10b981", "#f59e0b", "#ef4444", "#9333ea"],
 }));
 
-// Bar Chart Data
 const barSeries = computed(() => [{
   name: "Current Value",
   data: Object.values(groupedHoldings.value || {}),
@@ -157,21 +145,59 @@ const getStatusVariant = (status) => {
 };
 
 const formatCurrency = (amount) =>
-  new Intl.NumberFormat("en-IN", { 
-    style: "currency", 
-    currency: "INR", 
-    maximumFractionDigits: 0 
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0
   }).format(amount);
 
 const formatDate = (date) => new Date(date).toLocaleDateString();
 
 const formatPercentage = (pct) => {
-  // Default to 0 if pct is null/undefined/NaN
   const value = Number.isFinite(pct) ? pct : 0;
   const positive = value >= 0;
   return `<span class='${positive ? "text-green-600" : "text-red-600"}'>
     ${positive ? "▲" : "▼"} ${value > 0 ? "+" : ""}${value.toFixed(1)}%</span>`;
 };
+
 const onEdit = () => alert("Edit clicked!");
-const onClose = () => router.push('/portfolios');
+
+const onClose = async () => {
+  if (!portfolio.value) return;
+
+  const totalInitialInvestment = portfolio.value.holdings?.reduce(
+    (sum, h) => sum + (h.initialValue || 0),
+    0
+  ) ?? 0;
+
+  const totalCurrentValue = portfolio.value.holdings?.reduce(
+    (sum, h) => sum + (h.currentValue || 0),
+    0
+  ) ?? 0;
+
+  const portfolioData = {
+    id: portfolio.value.id,
+    name: portfolio.value.name,
+    client: portfolio.value.client,
+    startDate: portfolio.value.startDate,
+    status: "CLOSED",
+    notes: portfolio.value.notes,
+    holdings: portfolio.value.holdings?.map(h => ({
+      id: h.id,
+      asset: h.asset,
+      type: h.type,
+      allocation: h.allocation,
+      initialValue: h.initialValue,
+      currentValue: h.currentValue,
+    })) || [],
+    totalValue: totalCurrentValue,
+    returns: totalInitialInvestment > 0
+      ? ((totalCurrentValue - totalInitialInvestment) / totalInitialInvestment) * 100
+      : 0,
+  };
+
+  await store.dispatch("savePortfolio", portfolioData);
+  router.push("/portfolios");
+};
+
 </script>
