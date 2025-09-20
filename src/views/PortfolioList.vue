@@ -69,8 +69,7 @@
               </td>
               <td class="p-2">
                 <span v-if="!portfolio.returns && portfolio.status === 'UPCOMING'" class="text-gray-400">-</span>
-                <span v-else v-html="formatPercentage(portfolio.returns ?? 0)"></span>
-                 
+                <span v-else v-html="formatPercentage(portfolio.returns ?? 0)"></span>  
               </td>
               <td class="p-2 text-gray-900">{{ formatCurrency(portfolio.totalValue ?? 0) }}</td>
               <td class="p-2 text-right">
@@ -112,9 +111,6 @@ const router = useRouter();
 const searchTerm = ref("");
 const activeTab = ref("ACTIVE");
 
-const allPortfolios = store.getters.getPortfolios ?? [];
-
-
 // Computed filtered portfolios
 const filteredPortfolios = computed(() => {
   const allPortfolios = store.getters.getPortfolios ?? [];
@@ -155,6 +151,3 @@ const formatPercentage = (percentage) => {
 
 </script>
 
-<style scoped>
-/* optional custom styles */
-</style>

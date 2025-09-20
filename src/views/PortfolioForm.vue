@@ -223,6 +223,7 @@ const handleSubmit = async () => {
 
   const totalValue = holdings.value.reduce((sum, h) => sum + Number(h.value || 0), 0);
   const returnsValue = (totalValue - Number(formData.initialInvestment))/100; // absolute returns
+  console.log(totalValue/formData.initialInvestment)
   // Or as percentage:
   // const returnsValue = ((totalValue - formData.initialInvestment) / formData.initialInvestment) * 100;
 

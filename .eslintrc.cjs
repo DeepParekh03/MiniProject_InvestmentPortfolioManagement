@@ -4,14 +4,14 @@ module.exports = {
   env: {
     browser: true,
     node: true,
-    es2021: true, // enables ES2021 globals
+    es2021: true,
   },
   extends: [
     "eslint:recommended",
     "plugin:vue/vue3-recommended"
   ],
   parserOptions: {
-    ecmaVersion: 2021, // supports modern JS
+    ecmaVersion: 2021,
     sourceType: "module",
   },
   globals: {
@@ -21,6 +21,20 @@ module.exports = {
     withDefaults: "readonly",
   },
   rules: {
-    "no-unused-vars": "off", // optional
+    "no-unused-vars": "off",
+    "tailwindcss/no-custom-classname": "off",
+    "tailwindcss/classnames-order": "off",
+    "tailwindcss/migration-from-tailwind-2": "off",
+
+    // Vue-specific rules to disable
+    "vue/html-self-closing": "off",
+    "vue/max-attributes-per-line": "off",
+    "vue/no-v-html": "off",
+    "vue/attributes-order": "off",
+    "vue/singleline-html-element-content-newline": "off",
+    "vue/first-attribute-linebreak": "off",
+    "vue/html-indent": "off",
+    "vue/html-closing-bracket-newline":"off",
+
   },
 };
