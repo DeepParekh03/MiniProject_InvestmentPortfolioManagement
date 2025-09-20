@@ -1,4 +1,3 @@
-
 <template>
   <div class="space-y-6">
     <div class="flex justify-between items-center">
@@ -26,7 +25,7 @@
       </div>
 
       <div class="p-4">
-        <div class="grid grid-cols-3 mb-6">
+        <div class="grid grid-cols-3 mb-6 gap-2">
           <button
             v-for="status in ['UPCOMING','ACTIVE','CLOSED']"
             :key="status"
@@ -58,35 +57,41 @@
               :key="portfolio.id"
               :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'"
             >
-              <td class="p-2 text-gray-900">{{ portfolio.name }}</td>
-              <td class="p-2 text-gray-600">{{ portfolio.client }}</td>
-              <td class="p-2 text-gray-600">{{ new Date(portfolio.startDate).toLocaleDateString() }}</td>
+              <td class="p-2 text-gray-900">{{ portfolio.name ?? '-' }}</td>
+              <td class="p-2 text-gray-600">{{ portfolio.client ?? '-' }}</td>
+              <td class="p-2 text-gray-600">
+                {{ portfolio.startDate ? new Date(portfolio.startDate).toLocaleDateString() : '-' }}
+              </td>
               <td class="p-2">
                 <span :class="getStatusVariant(portfolio.status)" class="px-2 py-1 rounded-lg text-sm font-medium">
-                  {{ portfolio.status }}
+                  {{ portfolio.status ?? '-' }}
                 </span>
               </td>
               <td class="p-2">
-                <span v-if="portfolio.status === 'UPCOMING'" class="text-gray-400">-</span>
-                <span v-else v-html="formatPercentage(portfolio.returns)"></span>
+                <span v-if="!portfolio.returns && portfolio.status === 'UPCOMING'" class="text-gray-400">-</span>
+                <span v-else v-html="formatPercentage(portfolio.returns ?? 0)"></span>
+                 
               </td>
-              <td class="p-2 text-gray-900">{{ formatCurrency(portfolio.totalValue) }}</td>
+              <td class="p-2 text-gray-900">{{ formatCurrency(portfolio.totalValue ?? 0) }}</td>
               <td class="p-2 text-right">
                 <div class="flex justify-end space-x-2">
                   <button 
-                    @click="onViewPortfolio(portfolio)"
+                    @click="onViewPortfolio(portfolio.id)"
                     class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
                   >
                     <Eye class="w-4 h-4" />
                   </button>
                   <button 
-                    @click="onEditPortfolio(portfolio)"
+                    @click="onEditPortfolio(portfolio.id)"
                     class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
                   >
                     <Edit class="w-4 h-4" />
                   </button>
                 </div>
               </td>
+            </tr>
+            <tr v-if="filteredPortfolios.length === 0">
+              <td colspan="7" class="text-center py-4 text-gray-500">No portfolios found.</td>
             </tr>
           </tbody>
         </table>
@@ -97,70 +102,59 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { Eye, Edit, Plus, Search, TrendingUp, TrendingDown } from "lucide-vue-next";
-import router from "@/router";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { Eye, Edit, Plus, Search } from "lucide-vue-next";
 
-const props = defineProps({
-  onEditPortfolio: Function,
-  
-});
-
-const onViewPortfolio=()=>{
-  router.push('/portfolioDetail')
-}
-
-const onCreatePortfolio=()=>{
-  router.push('/portfolioForm')
-}
+const store = useStore();
+const router = useRouter();
 
 const searchTerm = ref("");
 const activeTab = ref("ACTIVE");
 
-//dummy portfolios
-const mockPortfolios = [
-  { id: "1", name: "Growth Portfolio", client: "John Smith", startDate: "2023-01-15", status: "ACTIVE", returns: 12.5, totalValue: 150000 },
-  { id: "2", name: "Conservative Portfolio", client: "Sarah Johnson", startDate: "2023-03-20", status: "ACTIVE", returns: 8.2, totalValue: 85000 },
-  { id: "3", name: "Aggressive Growth", client: "Michael Chen", startDate: "2024-01-10", status: "UPCOMING", returns: 0, totalValue: 75000 },
-  { id: "4", name: "Retirement Portfolio", client: "Emma Wilson", startDate: "2022-06-15", status: "CLOSED", returns: 15.8, totalValue: 120000 },
-  { id: "5", name: "Balanced Portfolio", client: "David Brown", startDate: "2023-09-01", status: "ACTIVE", returns: -2.1, totalValue: 95000 },
-];
+const allPortfolios = store.getters.getPortfolios ?? [];
 
+
+// Computed filtered portfolios
 const filteredPortfolios = computed(() => {
-  return mockPortfolios.filter((p) => {
-    const matchesSearch =
-      p.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      p.client.toLowerCase().includes(searchTerm.value.toLowerCase());
-    const matchesTab = p.status === activeTab.value;
-    return matchesSearch && matchesTab;
+  const allPortfolios = store.getters.getPortfolios ?? [];
+  return allPortfolios.filter(p => {
+    const matchesSearch = p.name?.toLowerCase().includes(searchTerm.value.toLowerCase()) ?? false;
+    const matchesStatus = p.status === activeTab.value;
+    return matchesSearch && matchesStatus;
   });
 });
 
+// Navigation functions
+const onViewPortfolio = (id) => router.push({ path: "/portfolioDetail", query: { id } });
+const onEditPortfolio = (id) => router.push({ path: "/portfolioForm", query: { id } });
+const onCreatePortfolio = () => router.push("/portfolioForm");
+
+// Utilities
 const getStatusVariant = (status) => {
   switch (status) {
-    case "ACTIVE":
-      return "bg-green-100 text-green-800";
-    case "UPCOMING":
-      return "bg-blue-100 text-blue-800";
-    case "CLOSED":
-      return "bg-gray-100 text-gray-800";
-    default:
-      return "bg-gray-200 text-gray-700";
+    case "ACTIVE": return "bg-green-100 text-green-800";
+    case "UPCOMING": return "bg-blue-100 text-blue-800";
+    case "CLOSED": return "bg-gray-100 text-gray-800";
+    default: return "bg-gray-200 text-gray-700";
   }
 };
 
-const formatCurrency = (amount) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(amount);
+const formatCurrency = (amount) => {
+  if (!amount) amount = 0;
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 0 }).format(amount);
+};
 
 const formatPercentage = (percentage) => {
+  if (!percentage && percentage !== 0) percentage = 0;
   const isPositive = percentage >= 0;
-  return `
-    <span class="flex items-center ${isPositive ? "text-green-600" : "text-red-600"}">
-      ${isPositive 
-        ? `<svg class='w-3 h-3 mr-1' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path d='M12 4v16m8-8H4'/></svg>`
-        : `<svg class='w-3 h-3 mr-1' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path d='M20 12H4m8-8v16'/></svg>`
-      }
-      ${percentage > 0 ? "+" : ""}${percentage.toFixed(1)}%
-    </span>
-  `;
+  return `<span class="${isPositive ? "text-green-600" : "text-red-600"}">
+    ${isPositive && percentage > 0 ? "+" : ""}${percentage.toFixed(1)}%
+  </span>`;
 };
+
 </script>
+
+<style scoped>
+/* optional custom styles */
+</style>

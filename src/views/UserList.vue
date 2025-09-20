@@ -56,11 +56,6 @@
               <td class="p-2 text-right">
                 <div class="flex justify-end space-x-2">
                   <button
-                    class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
-                  >
-                    <Eye class="w-4 h-4" />
-                  </button>
-                  <button
                     @click="editClient(client)"
                     class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
                   >
@@ -81,37 +76,49 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, computed } from "vue";
+import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { Eye, Edit, Trash2, Plus, Search } from "lucide-vue-next";
 
+const store = useStore();
 const router = useRouter();
 
+const searchTerm = ref("");
+
+// Computed filtered clients from Vuex store
+const filteredClients = computed(() =>
+  store.getters.filteredClients(searchTerm.value)
+);
+
+// Navigation to create client form
 const goToCreateClient = () => {
   router.push("/userForm");
 };
 
-// Mock data
-const clients = ref([
-  { id: "1", name: "John Smith", email: "john.smith@email.com", phone: "9372532881", status: "Active" },
-  { id: "2", name: "Sarah Johnson", email: "sarah.johnson@email.com", phone: "9312532881", status: "Active" },
-  { id: "3", name: "Michael Chen", email: "michael.chen@email.com", phone: "9372572881", status: "Pending" },
-  { id: "4", name: "Emma Wilson", email: "emma.wilson@email.com", phone: "9372532800", status: "Inactive" },
-  { id: "5", name: "David Brown", email: "david.brown@email.com", phone: "9372232881", status: "Active" },
-]);
+// Delete client via Vuex action
+const handleDeleteClient = (clientId) => {
+  store.dispatch("removeClient", clientId);
+};
 
-const searchTerm = ref("");
+// Edit client: navigate to form with query params
+const editClient = (client) => {
+  router.push({
+    name: "userForm",
+    query: {
+      id: client.id,
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      address: client.address ?? "",
+      clientType: client.clientType ?? "Individual",
+      notes: client.notes ?? "",
+    },
+  });
+};
 
-const filteredClients = computed(() =>
-  clients.value.filter(
-    (client) =>
-      client.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchTerm.value.toLowerCase())
-  )
-);
-
+// Utility: get status badge variant
 const getStatusVariant = (status) => {
   switch (status) {
     case "Active":
@@ -124,25 +131,4 @@ const getStatusVariant = (status) => {
       return "bg-gray-200 text-gray-700";
   }
 };
-
-const handleDeleteClient = (clientId) => {
-  clients.value = clients.value.filter((c) => c.id !== clientId);
-};
-
-const editClient = (client) => {
-  router.push({
-  name: "userForm",
-  query: {
-    id: client.id,
-    name: client.name,
-    email: client.email,
-    phone: client.phone,
-    address: client.address ?? "",
-    clientType: client.clientType ?? "Individual",
-    notes: client.notes ?? "",
-  },
-});
-
-};
-
 </script>

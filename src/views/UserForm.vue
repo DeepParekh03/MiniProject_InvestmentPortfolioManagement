@@ -1,98 +1,19 @@
-UserForm.vue
-<script setup>
-import { ref, reactive, watch, defineProps } from "vue";
-import { X } from "lucide-vue-next";
-import { useRouter,useRoute } from "vue-router";
-
-const router = useRouter();
-const route = useRoute();
-
-const props = defineProps({
-  client: {
-    type: Object,
-    default: null,
-  },
-  onSave: {
-    type: Function,
-    required: true,
-  },
-});
-
-const formData = reactive({
-  name: "",
-  email: "",
-  phone: "",
-  address: "",
-  clientType: "Individual",
-  notes: "",
-});
-
-const errors = reactive({});
-
-watch(
-  () => route.query,
-  (q) => {
-    formData.name = q.name || "";
-    formData.email = q.email || "";
-    formData.phone = q.phone || "";
-    formData.address = q.address || "";
-    formData.clientType = q.clientType || "Individual";
-    formData.notes = q.notes || "";
-  },
-  { immediate: true }
-);
-
-function validateForm() {
-  const newErrors = {};
-  if (!formData.name.trim()) newErrors.name = "Name is required";
-  if (!formData.email.trim()) {
-    newErrors.email = "Email is required";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-    newErrors.email = "Please enter a valid email address";
-  }
-  if (!formData.phone.trim()){ newErrors.phone = "Phone number is required";}
-  else if(formData.phone.length!==10){newErrors.phone="Enter valid Phone Number"}
-  if (!formData.address.trim()) newErrors.address = "Address is required";
-
-  Object.assign(errors, newErrors);
-  return Object.keys(newErrors).length === 0;
-}
-
-function handleCancel() {
-  router.push({ name: "clients" });
-}
-
-
-function handleSubmit(e) {
-  e.preventDefault();
-  if (validateForm()) {
-    props.onSave({
-      ...formData,
-      status: "Active",
-    });
-  }
-}
-</script>
-
 <template>
   <div
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
   >
     <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-      <!-- Header -->
       <div class="flex items-center justify-between border-b px-6 py-4">
         <h2 class="text-2xl font-semibold text-gray-900">
-          {{ props.client ? "Edit Client" : "Add New Client" }}
+          {{ formData.id ? "Edit Client" : "Add New Client" }}
         </h2>
         <button @click="handleCancel" class="text-gray-500 hover:text-gray-700">
           <X class="w-5 h-5" />
         </button>
       </div>
 
-      <!-- Form -->
       <form @submit="handleSubmit" class="p-6 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Name -->
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700">
               Full Name *
@@ -110,7 +31,6 @@ function handleSubmit(e) {
             </p>
           </div>
 
-          <!-- Email -->
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700">
               Email Address *
@@ -128,7 +48,6 @@ function handleSubmit(e) {
             </p>
           </div>
 
-          <!-- Phone -->
           <div>
             <label for="phone" class="block text-sm font-medium text-gray-700">
               Phone Number *
@@ -146,23 +65,22 @@ function handleSubmit(e) {
             </p>
           </div>
 
-          <!-- Client Type -->
           <div>
-            <label for="clientType" class="block text-sm font-medium text-gray-700">
-              Client Type *
+            <label for="status" class="block text-sm font-medium text-gray-700">
+              Status *
             </label>
             <select
-              id="clientType"
-              v-model="formData.clientType"
+              id="status"
+              v-model="formData.status"
               class="mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-500 border-gray-300"
             >
-              <option value="Individual">Individual</option>
-              <option value="Corporate">Corporate</option>
+              <option value="Active">Active</option>
+              <option value="Pending">Pending</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
         </div>
 
-        <!-- Address -->
         <div>
           <label for="address" class="block text-sm font-medium text-gray-700">
             Address *
@@ -180,7 +98,6 @@ function handleSubmit(e) {
           </p>
         </div>
 
-        <!-- Notes -->
         <div>
           <label for="notes" class="block text-sm font-medium text-gray-700">
             Notes
@@ -194,7 +111,6 @@ function handleSubmit(e) {
           ></textarea>
         </div>
 
-        <!-- Actions -->
         <div class="flex justify-end space-x-4 pt-4 border-t">
           <button
             type="button"
@@ -207,7 +123,7 @@ function handleSubmit(e) {
             type="submit"
             class="px-6 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700"
           >
-            {{ props.client ? "Update Client" : "Save Client" }}
+            {{ formData.id ? "Update Client" : "Save Client" }}
           </button>
         </div>
       </form>
@@ -215,3 +131,66 @@ function handleSubmit(e) {
   </div>
 </template>
 
+<script setup>
+import { reactive, watch } from "vue";
+import { X } from "lucide-vue-next";
+import { useRouter, useRoute } from "vue-router";
+import { useStore } from "vuex";
+
+const router = useRouter();
+const route = useRoute();
+const store = useStore();
+
+const formData = reactive({
+  id: "",
+  name: "",
+  email: "",
+  phone: "",
+  address: "",
+  status: "Active",
+  notes: "",
+});
+
+const errors = reactive({});
+
+// Populate form if editing via query
+watch(
+  () => route.query,
+  (q) => {
+    formData.id = q.id || "";
+    formData.name = q.name || "";
+    formData.email = q.email || "";
+    formData.phone = q.phone || "";
+    formData.address = q.address || "";
+    formData.status = q.status || "Active";
+    formData.notes = q.notes || "";
+  },
+  { immediate: true }
+);
+
+function validateForm() {
+  const newErrors = {};
+  if (!formData.name.trim()) newErrors.name = "Name is required";
+  if (!formData.email.trim()) newErrors.email = "Email is required";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Enter valid email";
+  if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+  else if (formData.phone.length !== 10) newErrors.phone = "Enter valid phone number";
+  if (!formData.address.trim()) newErrors.address = "Address is required";
+
+  Object.assign(errors, newErrors);
+  return Object.keys(newErrors).length === 0;
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  store.dispatch("saveClient", { ...formData });
+
+  router.push({ name: "clients" });
+}
+
+function handleCancel() {
+  router.push({ name: "clients" });
+}
+</script>
