@@ -1,31 +1,42 @@
 <template>
-  <div class="space-y-6 p-6">
-    <div class="flex justify-between items-center">
+  <div class="space-y-6 p-4 sm:p-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
       <h1 class="text-3xl text-gray-900">{{ portfolio.name }}</h1>
-      <div class="flex space-x-3">
-        <button @click="onEdit(portfolioId)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
+      <div class="flex flex-wrap gap-3">
+        <button
+          @click="onEdit(portfolioId)"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+        >
           ✏️ Edit Portfolio
         </button>
-        <button v-if="portfolio.status === 'ACTIVE'" @click="onClose"
-          class="px-4 py-2 border border-red-600 text-red-600 rounded hover:bg-red-50">
+        <button
+          v-if="portfolio.status === 'ACTIVE'"
+          @click="onClose"
+          class="px-4 py-2 border border-red-600 text-red-600 rounded hover:bg-red-50"
+        >
           ❌ Close Portfolio
         </button>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Client Info -->
       <div class="p-4 border rounded shadow">
         <h2 class="text-lg font-semibold text-gray-900">Client Information</h2>
         <p class="mt-2 text-gray-900 py-3">{{ portfolio.client }}</p>
-        <p class="text-sm text-gray-600 py-2">📧 {{ clientDetails?.email }}</p>
-        <p class="text-sm text-gray-600 py-2">📞 {{ clientDetails?.phone }}</p>
+        <p class="text-sm text-gray-600 py-1">📧 {{ clientDetails?.email }}</p>
+        <p class="text-sm text-gray-600 py-1">📞 {{ clientDetails?.phone }}</p>
       </div>
+
       <div class="p-4 border rounded shadow lg:col-span-2">
         <h2 class="text-lg font-semibold text-gray-900">Portfolio Summary</h2>
-        <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
             <p class="text-sm text-gray-500">Status</p>
-            <span :class="getStatusVariant(portfolio.status)" class="px-2 py-1 text-sm rounded">
+            <span
+              :class="getStatusVariant(portfolio.status)"
+              class="px-2 py-1 text-sm rounded"
+            >
               {{ portfolio.status }}
             </span>
           </div>
@@ -49,37 +60,66 @@
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Portfolio Distribution</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <ApexCharts type="pie" :series="pieSeries" :options="pieOptions" height="300" />
-
         <ApexCharts type="bar" :series="barSeries" :options="barOptions" height="300" />
       </div>
     </div>
 
     <div class="p-4 border rounded shadow">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">Holdings</h2>
-      <table class="min-w-full border text-sm">
-        <thead class="bg-gray-50 text-left">
-          <tr>
-            <th class="px-4 py-2 border">Asset</th>
-            <th class="px-4 py-2 border">Type</th>
-            <th class="px-4 py-2 border">Allocation %</th>
-            <th class="px-4 py-2 border">Current Value</th>
-            <th class="px-4 py-2 border">Gain/Loss</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(holding, index) in holdingsWithGainLoss" :key="holding.id"
-            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
-            <td class="px-4 py-2 border">{{ holding.asset }}</td>
-            <td class="px-4 py-2 border">{{ holding.type }}</td>
-            <td class="px-4 py-2 border">{{ holding.allocation }}%</td>
-            <td class="px-4 py-2 border">{{ formatCurrency(holding.currentValue) }}</td>
-            <td class="px-4 py-2 border" v-html="formatPercentage(holding.gainLoss)"></td>
-          </tr>
-        </tbody>
-      </table>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Holdings</h2>
+
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full border text-sm">
+          <thead class="bg-gray-50 text-left">
+            <tr>
+              <th class="px-4 py-2 border">Asset</th>
+              <th class="px-4 py-2 border">Type</th>
+              <th class="px-4 py-2 border">Allocation %</th>
+              <th class="px-4 py-2 border">Current Value</th>
+              <th class="px-4 py-2 border">Gain/Loss</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(holding, index) in holdingsWithGainLoss"
+              :key="holding.id"
+              :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'"
+            >
+              <td class="px-4 py-2 border">{{ holding.asset }}</td>
+              <td class="px-4 py-2 border">{{ holding.type }}</td>
+              <td class="px-4 py-2 border">{{ holding.allocation }}%</td>
+              <td class="px-4 py-2 border">{{ formatCurrency(holding.currentValue) }}</td>
+              <td class="px-4 py-2 border" v-html="formatPercentage(holding.gainLoss)"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="md:hidden space-y-4">
+        <div
+          v-for="holding in holdingsWithGainLoss"
+          :key="holding.id"
+          class="border rounded-lg p-4 bg-white shadow-sm space-y-2"
+        >
+          <div class="flex justify-between">
+            <p class="font-semibold text-gray-900">{{ holding.asset }}</p>
+            <p class="text-sm text-gray-600">{{ holding.type }}</p>
+          </div>
+          <p class="text-sm text-gray-500">
+            <strong>Allocation:</strong> {{ holding.allocation }}%
+          </p>
+          <p class="text-sm text-gray-500">
+            <strong>Current Value:</strong> {{ formatCurrency(holding.currentValue) }}
+          </p>
+          <p class="text-sm">
+            <strong>Gain/Loss:</strong>
+            <span v-html="formatPercentage(holding.gainLoss)"></span>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
 <script setup>
 import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";

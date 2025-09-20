@@ -1,10 +1,10 @@
 <template>
   <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
       <h1 class="text-3xl text-gray-900">Portfolios</h1>
       <button 
         @click="onCreatePortfolio"
-        class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+        class="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg self-start sm:self-auto"
       >
         <Plus class="w-4 h-4 mr-2" />
         New Portfolio
@@ -12,9 +12,9 @@
     </div>
 
     <div class="bg-white rounded-xl shadow">
-      <div class="border-b p-4 flex justify-between items-center">
+      <div class="border-b p-4 flex flex-col sm:flex-row justify-between gap-4">
         <h2 class="text-xl text-gray-900">Portfolio Management</h2>
-        <div class="relative w-80">
+        <div class="relative w-full sm:w-80">
           <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input 
             v-model="searchTerm"
@@ -31,7 +31,7 @@
             :key="status"
             @click="activeTab = status"
             :class="[
-              'py-2 rounded-lg text-center',
+              'py-2 rounded-lg text-center text-sm font-medium',
               activeTab === status ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
             ]"
           >
@@ -39,61 +39,103 @@
           </button>
         </div>
 
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-50">
-              <th class="p-2 text-left text-gray-700">Portfolio Name</th>
-              <th class="p-2 text-left text-gray-700">Client</th>
-              <th class="p-2 text-left text-gray-700">Start Date</th>
-              <th class="p-2 text-left text-gray-700">Status</th>
-              <th class="p-2 text-left text-gray-700">Returns %</th>
-              <th class="p-2 text-left text-gray-700">Value</th>
-              <th class="p-2 text-right text-gray-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr 
-              v-for="(portfolio, index) in filteredPortfolios" 
-              :key="portfolio.id"
-              :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'"
-            >
-              <td class="p-2 text-gray-900">{{ portfolio.name ?? '-' }}</td>
-              <td class="p-2 text-gray-600">{{ portfolio.client ?? '-' }}</td>
-              <td class="p-2 text-gray-600">
-                {{ portfolio.startDate ? new Date(portfolio.startDate).toLocaleDateString() : '-' }}
-              </td>
-              <td class="p-2">
-                <span :class="getStatusVariant(portfolio.status)" class="px-2 py-1 rounded-lg text-sm font-medium">
-                  {{ portfolio.status ?? '-' }}
-                </span>
-              </td>
-              <td class="p-2">
-                <span v-if="!portfolio.returns && portfolio.status === 'UPCOMING'" class="text-gray-400">-</span>
-                <span v-else v-html="formatPercentage(portfolio.returns ?? 0)"></span>  
-              </td>
-              <td class="p-2 text-gray-900">{{ formatCurrency(portfolio.totalValue ?? 0) }}</td>
-              <td class="p-2 text-right">
-                <div class="flex justify-end space-x-2">
-                  <button 
-                    @click="onViewPortfolio(portfolio.id)"
-                    class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
-                  >
-                    <Eye class="w-4 h-4" />
-                  </button>
-                  <button 
-                    @click="onEditPortfolio(portfolio.id)"
-                    class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
-                  >
-                    <Edit class="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="filteredPortfolios.length === 0">
-              <td colspan="7" class="text-center py-4 text-gray-500">No portfolios found.</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="hidden md:block">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="p-2 text-left text-gray-700">Portfolio Name</th>
+                <th class="p-2 text-left text-gray-700">Client</th>
+                <th class="p-2 text-left text-gray-700">Start Date</th>
+                <th class="p-2 text-left text-gray-700">Status</th>
+                <th class="p-2 text-left text-gray-700">Returns %</th>
+                <th class="p-2 text-left text-gray-700">Value</th>
+                <th class="p-2 text-right text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                v-for="(portfolio, index) in filteredPortfolios" 
+                :key="portfolio.id"
+                :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'"
+              >
+                <td class="p-2 text-gray-900">{{ portfolio.name ?? '-' }}</td>
+                <td class="p-2 text-gray-600">{{ portfolio.client ?? '-' }}</td>
+                <td class="p-2 text-gray-600">
+                  {{ portfolio.startDate ? new Date(portfolio.startDate).toLocaleDateString() : '-' }}
+                </td>
+                <td class="p-2">
+                  <span :class="getStatusVariant(portfolio.status)" class="px-2 py-1 rounded-lg text-sm font-medium">
+                    {{ portfolio.status ?? '-' }}
+                  </span>
+                </td>
+                <td class="p-2">
+                  <span v-if="!portfolio.returns && portfolio.status === 'UPCOMING'" class="text-gray-400">-</span>
+                  <span v-else v-html="formatPercentage(portfolio.returns ?? 0)"></span>  
+                </td>
+                <td class="p-2 text-gray-900">{{ formatCurrency(portfolio.totalValue ?? 0) }}</td>
+                <td class="p-2 text-right">
+                  <div class="flex justify-end space-x-2">
+                    <button 
+                      @click="onViewPortfolio(portfolio.id)"
+                      class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
+                    >
+                      <Eye class="w-4 h-4" />
+                    </button>
+                    <button 
+                      @click="onEditPortfolio(portfolio.id)"
+                      class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
+                    >
+                      <Edit class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredPortfolios.length === 0">
+                <td colspan="7" class="text-center py-4 text-gray-500">No portfolios found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="md:hidden space-y-4">
+          <div 
+            v-for="portfolio in filteredPortfolios" 
+            :key="portfolio.id"
+            class="border rounded-xl p-4 shadow-sm bg-white space-y-3"
+          >
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-semibold text-gray-900">{{ portfolio.name ?? '-' }}</h3>
+              <span :class="getStatusVariant(portfolio.status)" class="px-2 py-1 rounded-lg text-xs font-medium">
+                {{ portfolio.status ?? '-' }}
+              </span>
+            </div>
+            <p class="text-gray-600 text-sm"><strong>Client:</strong> {{ portfolio.client ?? '-' }}</p>
+            <p class="text-gray-600 text-sm"><strong>Start Date:</strong> 
+              {{ portfolio.startDate ? new Date(portfolio.startDate).toLocaleDateString() : '-' }}
+            </p>
+            <p class="text-gray-600 text-sm">
+              <strong>Returns:</strong> 
+              <span v-if="!portfolio.returns && portfolio.status === 'UPCOMING'" class="text-gray-400">-</span>
+              <span v-else v-html="formatPercentage(portfolio.returns ?? 0)"></span>
+            </p>
+            <p class="text-gray-900 font-medium"><strong>Value:</strong> {{ formatCurrency(portfolio.totalValue ?? 0) }}</p>
+            <div class="flex justify-end space-x-3 pt-2">
+              <button 
+                @click="onViewPortfolio(portfolio.id)"
+                class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
+              >
+                <Eye class="w-4 h-4" />
+              </button>
+              <button 
+                @click="onEditPortfolio(portfolio.id)"
+                class="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 rounded"
+              >
+                <Edit class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <p v-if="filteredPortfolios.length === 0" class="text-center text-gray-500">No portfolios found.</p>
+        </div>
       </div>
     </div>
   </div>
