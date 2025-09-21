@@ -155,7 +155,7 @@ The system uses Jest and Vue Test Utils for testing.
 
 1. **Clone the repository**
    ```
-   git clone https://github.com/your-username/portfolio-management.git
+   git clone https://github.com/DeepParekh03/MiniProject_InvestmentPortfolioManagement
    cd portfolio-management
 
 2. **Install dependencies**
