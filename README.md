@@ -225,3 +225,9 @@ module.exports = {
 - Upcoming portfolios cannot have holdings until they are activated.
 - Local storage is used to persist data, while Vuex handles state management.
 - Pie charts and bar charts in Portfolio Detail view provide visual insights.
+
+---
+
+## Author
+Deep
+
