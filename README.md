@@ -1,5 +1,8 @@
 # 📊 Investment Portfolio Management System
 
+## Watch Demo
+[![Watch the video](https://img.shields.io/badge/🎥%20Video%20Demo-FF5733?style=for-the-badge&logo=video&logoColor=white)](https://drive.google.com/file/d/1Ub8r3b0Z56k-t_CGb5NFFxMnL9bxPcmB/view?usp=sharing)
+
 ## 1. Introduction
 The objective of this project is to digitize client and portfolio management for a wealth management firm.  
 The system eliminates data loss, avoids miscommunication, and improves user engagement by providing a centralized platform to manage clients and their investment portfolios.  
